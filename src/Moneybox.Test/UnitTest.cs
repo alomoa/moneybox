@@ -78,6 +78,29 @@ namespace Moneybox.Test
             notificationServiceMock.Verify(m => m.NotifyFundsLow(user.Email), Times.Once);
         }
 
+        [Test]
+        public void AccountTransfersMoneyToAnotherAccount()
+        {
+            //Arrange
+            var account1 = new Account(new User(), 5000);
+            var account2 = new Account(new User(), 0);
+
+            //Act
+            account1.Transfer(account2, 1000);
+
+            //Assert
+            Assert.That(account2.Balance, Is.EqualTo(1000));
+        }
+
+        [Test]
+        public void DoesNotTransferMoneyToItself()
+        {
+            //Arrange
+            var account = new Account(new User(), 1000);
+
+            //Act & Assert
+            Assert.Throws<InvalidOperationException>(() => account.Transfer(account, 1000));
+        }
 
     }
 }

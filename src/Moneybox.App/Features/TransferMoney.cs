@@ -28,12 +28,12 @@ namespace Moneybox.App.Features
                 throw;
             }
             
-            if (to.ReachingPaidInLimit())
+            if (to.ReachingPaidInLimit(500))
             {
                 this.notificationService.NotifyApproachingPayInLimit(to.User.Email);
             }
 
-            if (!from.HasMoreThan(amount))
+            if (from.IsFundsLow(amount))
             {
                 this.notificationService.NotifyFundsLow(from.User.Email);
             }

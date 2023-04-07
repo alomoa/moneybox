@@ -21,7 +21,7 @@ namespace Moneybox.App.Features
 
             from.Withdraw(amount);
 
-            if (from.ReachingBalanceLimit())
+            if (from.ReachingBalanceLimit(500))
             {
                 this.notificationService.NotifyFundsLow(from.User.Email);
             }

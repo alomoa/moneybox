@@ -3,7 +3,6 @@ using Moneybox.App.DataAccess;
 using Moneybox.App.Domain.Services;
 using Moneybox.App.Features;
 using Moneybox.App;
-using System.ComponentModel.DataAnnotations;
 
 namespace Moneybox.Test
 {
@@ -102,5 +101,97 @@ namespace Moneybox.Test
             Assert.Throws<InvalidOperationException>(() => account.Transfer(account, 1000));
         }
 
+
+        [Test]
+        public void ReturnsTrueIfAccountFundsAreLow()
+        {
+            //Arrange
+            var account = new Account(new User(), 200);
+
+            //Act & Assert
+            Assert.That(account.IsFundsLow(500), Is.True);
+
+
+        }
+
+        [Test]
+        public void ReturnsFalseIfAccountFundsAreNotLow()
+        {
+            //Arrange
+            var account = new Account(new User(), 1000);
+
+            //Act & Assert
+            Assert.That(account.IsFundsLow(500), Is.False);
+        }
+
+        [Test]
+        public void AccountShouldWithdrawMoney()
+        {
+            //Arrange
+            var account = new Account(new User(), 500);
+
+            //Act 
+            account.Withdraw(500);
+
+            //Assert
+            Assert.That(account.Balance, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void AccountShouldNotWithdrawMoney()
+        {
+            //Arrange
+            var account = new Account(new User(), 500);
+
+            //Act & assert
+            Assert.Throws<InvalidOperationException>(() => account.Withdraw(1000));
+        }
+
+        [Test]
+        public void ReturnsTrueIfAccountIsReachingPaidLimit()
+        {
+            //Arrange
+            var account = new Account(new User(), 5000);
+            var account2 = new Account(new User(), 500);
+
+            //Act
+            account.Transfer(account2, 3700);
+
+            //Assert
+            Assert.That(account2.ReachingPaidInLimit(500), Is.True);
+        }
+
+        [Test]
+        public void ReturnsFalseIfAccountIsNotReachingPaidLimit()
+        {
+            var account = new Account(new User(), 5000);
+            var account2 = new Account(new User(), 500);
+
+            //Act
+            account.Transfer(account2, 200);
+
+            //Assert
+            Assert.That(account2.ReachingPaidInLimit(500), Is.False);
+        }
+
+        [Test]
+        public void ReturnsTrueIfAccountIsReachingBalanceLimit()
+        {
+            //Arrange
+            var account = new Account(new User(), 200);
+
+            //Act & assert
+            Assert.That(account.ReachingBalanceLimit(500), Is.True);
+        }
+
+        [Test]
+        public void ReturnsFalseIfAccountIsNotReachingBalanceLimit()
+        {
+            //Arrange
+            var account = new Account(new User(), 1000);
+
+            //Act & assert
+            Assert.That(account.ReachingBalanceLimit(500), Is.False);
+        }
     }
 }

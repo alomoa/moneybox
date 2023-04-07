@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Moneybox.App.Domain;
+using System;
 
 namespace Moneybox.App
 {
-    public class Account
+    public class Account : IAccount
     {
         public const decimal PayInLimit = 4000m;
 
@@ -26,6 +27,11 @@ namespace Moneybox.App
 
         public void Transfer(Account to, decimal amount)
         {
+            if (to.Equals(this))
+            {
+                throw new InvalidOperationException("Cannot transfer money to itself");
+            }
+
             if (Balance < amount)
             {
                 throw new InvalidOperationException("Insufficient funds to make transfer");
@@ -45,19 +51,14 @@ namespace Moneybox.App
         }
 
 
-        public bool HasMoreThan(decimal amount)
+        public bool IsFundsLow(decimal limit)
         {
-            return Balance > amount;
+            return Balance < limit;
         }
 
-        public bool IsFundsLow()
+        public bool ReachingPaidInLimit(decimal limit)
         {
-            return Balance < 500;
-        }
-
-        public bool ReachingPaidInLimit()
-        {
-            return PayInLimit < 500;
+            return PayInLimit - PaidIn < limit;
         }
 
         public void Withdraw(decimal amount)
@@ -71,9 +72,9 @@ namespace Moneybox.App
             Withdrawn = Withdrawn + amount;
         }
 
-        public bool ReachingBalanceLimit()
+        public bool ReachingBalanceLimit(decimal limit)
         {
-            return Balance < 500;
+            return Balance < limit;
         }
     }
 

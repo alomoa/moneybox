@@ -23,7 +23,7 @@ namespace Moneybox.App.Features
 
             if (from.ReachingBalanceLimit(500))
             {
-                this.notificationService.NotifyFundsLow(from.User.Email);
+                notificationService.NotifyFundsLow(from.User.Email);
             }
         }
     }

@@ -17,29 +17,27 @@ namespace Moneybox.App.Features
 
         public void Execute(Guid fromAccountId, Guid toAccountId, decimal amount)
         {
-            var from = accountRepository.GetAccountById(fromAccountId);
-            var to = accountRepository.GetAccountById(toAccountId);
+            var transferFrom = accountRepository.GetAccountById(fromAccountId);
+            var transferTo = accountRepository.GetAccountById(toAccountId);
 
-            try
+            if (transferTo.Equals(transferFrom))
             {
-                from.Transfer(to, amount);
-            }
-            catch{
-                throw;
-            }
-            
-            if (to.ReachingPaidInLimit(500))
-            {
-                notificationService.NotifyApproachingPayInLimit(to.User.Email);
+                throw new InvalidOperationException("Cannot transfer money to itself");
             }
 
-            if (from.IsFundsLow(amount))
+            if (transferFrom.Balance < amount)
             {
-                notificationService.NotifyFundsLow(from.User.Email);
+                throw new InvalidOperationException("Insufficient funds to make transfer");
             }
 
-            accountRepository.Update(from);
-            accountRepository.Update(to);
+            var paidIn = transferTo.PaidIn + amount;
+            if (paidIn > Account.PayInLimit)
+            {
+                throw new InvalidOperationException("Account pay in limit reached");
+            }
+
+            transferFrom.TakeOut(amount);
+            transferTo.Pay(amount);
         }
     }
 }

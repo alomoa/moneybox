@@ -3,19 +3,18 @@ using System;
 
 namespace Moneybox.App
 {
-    public class Account : IAccount
-    {
+    public class Account { 
         public const decimal PayInLimit = 4000m;
 
         private Guid Id { get; set; }
 
-        public User User { get; set; }
+        public User User { get; private set; }
 
         public decimal Balance { get; private set; }
 
         public decimal Withdrawn { get; private set; }
 
-        private decimal PaidIn { get; set; }
+        public decimal PaidIn { get; private set; }
 
         public Account(User user, decimal balance)
         {
@@ -25,32 +24,6 @@ namespace Moneybox.App
             PaidIn = 0;
         }
 
-        public void Transfer(Account to, decimal amount)
-        {
-            if (to.Equals(this))
-            {
-                throw new InvalidOperationException("Cannot transfer money to itself");
-            }
-
-            if (Balance < amount)
-            {
-                throw new InvalidOperationException("Insufficient funds to make transfer");
-            }
-
-            var paidIn = to.PaidIn + amount;
-            if (paidIn > PayInLimit)
-            {
-                throw new InvalidOperationException("Account pay in limit reached");
-            }
-
-            Balance = Balance - amount;
-            Withdrawn = Withdrawn - amount;
-
-            to.Balance = to.Balance + amount;
-            to.PaidIn = to.PaidIn + amount;
-        }
-
-
         public bool IsFundsLow(decimal limit)
         {
             return Balance < limit;
@@ -59,6 +32,17 @@ namespace Moneybox.App
         public bool ReachingPaidInLimit(decimal limit)
         {
             return PayInLimit - PaidIn < limit;
+        }
+
+        public void TakeOut(decimal amount)
+        {
+            Balance -= amount;
+        }
+
+        public void Pay(decimal amount)
+        {
+            Balance += amount;
+            PaidIn += amount;
         }
 
         public void Withdraw(decimal amount)
@@ -77,5 +61,4 @@ namespace Moneybox.App
             return Balance < limit;
         }
     }
-
 }
